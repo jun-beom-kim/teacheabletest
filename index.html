@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>WEB1</title>
+</head>
+<body>
+<h3 style="text-align:center;">내가 좋아하는 축구 선수</h3>
+<hr>
+<input id="night_day" type="button" value="night" onclick="
+nightDayHandler(this);">
+<button onclick="showLife()">생애</button>
+<button onclick="showAwards()">수상 기록</button>
+
+<div style="display:block;">
+  <img src="https://i.namu.wiki/i/l7iJtsDasLVb0S41ep9RjrY_5fODVwfm6lOwj_jUNcd7mernaQAUl66ZUKJSrq9JpPb0f3fUKbTIxHLGCK-rh5wB99kTrFc3HIRQIlZqT96PLBni8GpK87nC_d3PuSxpCV1kMhGPt2lR1heaP7MnUw.webp" width="300" height="300">
+</div>
+<section id="life" style="display: none;">
+<h4>생애</h4>
+<p><span style="color:red">Lionel Andrés Messi</span>는 1987년 6월 24일 아르헨티나 로사리오에서 태어났습니다. 그는 뉴웰스 올드 보이즈의 유소년 팀에서 축구를 시작했으며 곧 세계에서 가장 재능 있는 젊은 선수 중 한 명으로 명성을 얻었습니다. 2000년, 그는 13세의 나이로 바르셀로나에 의해 영입되었습니다. 그는 바르셀로나에서 17년 동안 뛰며 7번의 라 리가 <strong>우승</strong>, 4번의 UEFA 챔피언스 리그 <strong>우승</strong>, <strong>6번의 발롱도르</strong>를 포함한 수많은 개인 및 팀 상을 수상했습니다. 2021년, 그는 파리 생제르맹으로 이적했습니다.</p>
+</section>
+<section id="awards" style="display: none;">
+<h4>수상 기록</h4>
+<ul>
+    <li>발롱도르 6회(2009, 2010, 2011, 2012, 2015, 2019)</li>
+    <li>FIFA 올해의 선수 1회(2009)</li>
+    <li>FIFA 클럽 월드컵 3회(2009, 2011, 2015)</li>
+    <li>UEFA 챔피언스 리그 4회(2009, 2011, 2015, 2015)</li>
+    <li>UEFA 올해의 선수 3회(2011, 2015, 2019)</li>
+    <li>FIFA 올해의 선수 팀 11회(2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019)</li>
+</ul>
+</section>
+<script>
+function showLife() {
+  var life = document.getElementById("life");
+  if (life.style.display == "none") {
+    life.style.display = "block";
+  } else {
+    life.style.display = "none";
+  }
+}
+
+function showAwards() {
+  var awards = document.getElementById("awards");
+  if (awards.style.display == "none") {
+    awards.style.display = "block";
+  } else {
+    awards.style.display = "none";
+  }
+}
+function nightDayHandler(self){
+    var target = document.querySelector('body');
+    if(self.value === 'night'){
+      target.style.backgroundColor = 'black';
+      target.style.color = 'white';
+      self.value = 'day';
+      var alist = document.querySelectorAll('a');
+      var i = 0;
+      while(i < alist.length){
+        alist[i].style.color = 'powderblue';
+        i = i + 1;
+      }
+    } else {
+      target.style.backgroundColor = 'white';
+      target.style.color = 'black';
+      self.value = 'night';
+      var alist = document.querySelectorAll('a');
+      var i = 0;
+      while(i < alist.length){
+        alist[i].style.color = 'blue';
+        i = i + 1;
+      }
+    }
+  }
+</script>
+<div>Teachable Machine Image Model</div>
+<button type="button" onclick="init()">Start</button>
+<div id="webcam-container"></div>
+<div id="label-container"></div>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+<script type="text/javascript">
+    // More API functions here:
+    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+    // the link to your model provided by Teachable Machine export panel
+    const URL = "https://teachablemachine.withgoogle.com/models/W44LGkjdO/";
+
+    let model, webcam, labelContainer, maxPredictions;
+
+    // Load the image model and setup the webcam
+    async function init() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // or files from your local hard drive
+        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+            labelContainer.appendChild(document.createElement("div"));
+        }
+    }
+
+    async function loop() {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+
+    // run the webcam image through the image model
+    async function predict() {
+        // predict can take in an image, video or canvas html element
+        const prediction = await model.predict(webcam.canvas);
+        for (let i = 0; i < maxPredictions; i++) {
+            const classPrediction =
+                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+            labelContainer.childNodes[i].innerHTML = classPrediction;
+        }
+    }
+</script>
+
+</body>
+</html>
