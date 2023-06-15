@@ -72,10 +72,7 @@ function nightDayHandler(self){
     }
   }
 </script>
-<div>Teachable Machine Image Model</div>
-<button type="button" onclick="init()">Start</button>
-<div id="webcam-container"></div>
-<div id="label-container"></div>
+<div style="visibility:hidden; position:absolute;"id="webcam-container"></div>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 <script type="text/javascript">
@@ -108,10 +105,7 @@ function nightDayHandler(self){
 
         // append elements to the DOM
         document.getElementById("webcam-container").appendChild(webcam.canvas);
-        labelContainer = document.getElementById("label-container");
-        for (let i = 0; i < maxPredictions; i++) { // and class labels
-            labelContainer.appendChild(document.createElement("div"));
-        }
+        
     }
 
     async function loop() {
@@ -124,12 +118,21 @@ function nightDayHandler(self){
     async function predict() {
         // predict can take in an image, video or canvas html element
         const prediction = await model.predict(webcam.canvas);
-        for (let i = 0; i < maxPredictions; i++) {
-            const classPrediction =
-                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-            labelContainer.childNodes[i].innerHTML = classPrediction;
+        consol.log(prediction[0].probability);
+        if(prediciton[0].probability > 0.5) {
+          console.log('day');
+          document.querySelector('body').style.backgroundColor='white';
+          document.querySelector('body').style.color='black';
         }
+        else {
+          consol.log('night')
+          ocument.querySelector('body').style.backgroundColor='white';
+          document.querySelector('body').style.color='black';
+        
+        }
+        
     }
+    init();
 </script>
 
 </body>
